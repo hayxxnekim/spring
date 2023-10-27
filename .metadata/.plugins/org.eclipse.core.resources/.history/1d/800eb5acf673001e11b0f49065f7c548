@@ -1,0 +1,81 @@
+package com.myweb.www.handler;
+
+import java.io.File;
+import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+import com.myweb.www.domain.FileVO;
+import com.myweb.www.repository.FileDAO;
+
+import lombok.extern.slf4j.Slf4j;
+//파일 핸들러와 비슷
+
+@Slf4j
+@Component
+//내가 만든 클래스 객체
+public class FileSweeper {
+	//파일 경로
+	private final String Base_PATH ="D:\\_myweb\\_java\\fileupload\\";
+	
+	//filedao와 값을 비교
+	@Inject
+	private FileDAO fdao;
+	
+	//Scheduled : 시간에 맞춰서 실행
+	//초 분 시 일 월 요일 년도(생략 가능)
+	@Scheduled(cron = "0 58 21 * * * ") //초분시일 월,요일 상관X 년도 생략 => 21시 처리
+	public void fileSweeper() {
+		log.info(">>> FileSweeper Running Start : {} >"+LocalDateTime.now());
+		
+		//DB에 등록된 파일 목록 가져오기
+		List <FileVO> dbList = fdao.selectListAllFiles();
+		
+		//저장소를 검색할 때 필요한 파일 경로 리스트(실제 존재해야 될 리스트)
+		List<String> cuurrFiles = new ArrayList<String>();
+		
+		//가져온 db 리스트를 추가
+		for(FileVO fvo : dbList) {
+			String filePath = fvo.getSaveDir()+"\\"+fvo.getUuid();
+			String fileName = fvo.getFileName();
+			//총 경로 생성
+			cuurrFiles.add(Base_PATH+filePath+"_"+fileName);
+			
+			//이미지 파일이면 썸네일도 경로 추가
+			if(fvo.getFileType()>0) {
+				cuurrFiles.add(Base_PATH+filePath+"_th_"+fileName);
+			}
+		}
+		//날짜를 반영한 폴더 구조 경로 만들기
+		LocalDate now = LocalDate.now();
+		String today = now.toString();
+		//경로 형태로 만들기
+		today = today.replace("-", File.separator);
+		
+		//경로를 기반으로 저장되어 있는 파일을 검색
+		//dir 경로, toFile(): 파일 하나
+		File dir = Paths.get(Base_PATH+today).toFile();
+		//여러 파일 존재, listFiles() : 전체 파일
+		File[] allFileObjects = dir.listFiles();
+		
+		//실제 저장되어 있는 파일과 DB에 존재하는 파일을 비교하여 없는 (파일) 삭제 진행
+		for(File file : allFileObjects) {
+			//path의 전체 경로를 저장
+			String storedFileName = file.toPath().toString();
+			//cuurrFiles(DB)에 stroedFileName이 존재하지 않는 경우
+			if(!cuurrFiles.contains(storedFileName)) {
+				file.delete(); //파일 삭제
+				log.info(">>> delete Fille > {} > "+storedFileName);
+			}
+		}
+		log.info(">>> FileSweeper Running finish : {} >"+LocalDateTime.now());
+	}
+	
+}

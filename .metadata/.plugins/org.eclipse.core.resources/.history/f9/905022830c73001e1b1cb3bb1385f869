@@ -1,0 +1,170 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>         
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>     
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<style type="text/css">
+.container {
+    margin-left: -10px !important;
+    margin-top: 20px !important;
+}
+.modBtn {
+	margin-left: 20px;
+}
+.delBtn {
+	margin-left: 2px;
+}
+.rounded-pill{
+	margin-bottom: 5px;
+}
+</style>
+</head>
+<body>
+<jsp:include page="../common/header.jsp" />
+<jsp:include page="../common/nav.jsp" />
+<!-- bdto.bvo를 bvo에 저장 -->
+<c:set value="${bdto.bvo}" var="bvo"></c:set>
+<table class="table table-hover">
+	<thead>
+		<tr>
+			<th>#</th>
+			<td>${bvo.bno}</td>
+		</tr>
+		<tr>
+			<th>title</th>
+			<td>${bvo.title}</td>
+		</tr>
+		<tr>
+			<th>writer</th>
+			<td>${bvo.writer}</td>
+		</tr>
+		<tr>
+			<th>content</th>
+			<td>${bvo.content }</td>
+		</tr>
+		<tr>
+			<th>registerDate</th>
+			<td>${bvo.regAt}</td>
+		</tr>		
+		<tr>
+			<th>readCount</th>
+			<td>${bvo.readCount}</td>
+		</tr>	
+	</thead>
+</table>
+
+<!-- 파일 표시란 -->
+<!-- when : 그림 파일 외 파일이 존재하는 경우 가정 -->
+<c:set value="${bdto.flist }" var="flist"></c:set>
+<div class="col-12">
+	<ul class="list-group list-group-flush">
+			<c:forEach items="${flist }" var="fvo">
+				<li>
+					<c:choose>
+						<c:when test="${fvo.fileType > 0 }">
+							<div>
+								<!-- fn : \\을 /로 대체, / 추가후 파일명 넣어주기  -->
+								<img alt="없음." src="/upload/${fn: replace(fvo.saveDir,'\\', '/')}/
+								${fvo.uuid}_th_${fvo.fileName}">
+							</div>
+						</c:when>
+						<c:otherwise>
+							<div>
+								<!-- file 아이콘 추가 -->
+							</div>
+						</c:otherwise>
+					</c:choose>
+					<div>
+						<div>${fvo.fileName }</div>
+						${fvo.regAt }
+					</div>
+					<span>${fvo.fileSize }Byte</span>
+				</li>
+			</c:forEach>
+	</ul>
+</div>
+
+<a href="/board/modify?bno=${bvo.bno }" id="modBtn">
+	<button type="button" class="btn btn-dark">수정</button>
+</a>
+<a href="/board/remove?bno=${bvo.bno }" id="delBtn">
+	<button type="button" class="btn btn-dark">삭제</button>
+</a>
+<a href="/board/list">
+	<button type="button" class="btn btn-dark">리스트</button>
+</a>
+
+<!-- 댓글 라인  -->
+<div class="container">
+	<!-- 댓글 등록 라인 -->
+	<div class="input-group mb-3">
+	  <span class="input-group-text" id="cmtWriter">Writer</span>
+	  <input type="text" class="form-control" placeholder="Test Commnet" id="cmtText">
+	  <button type="button" class="btn btn-success" id="cmtPostBtn">등록</button>
+	</div>
+	
+	<!-- 댓글 표시 라인 -->
+	<ul class="list-group list-group-flush" id="cmtListArea">
+	  <li class="list-group-item">
+	  	<div class="mb-3">
+	  		<div class="fw-bold">Writer</div>
+	  		Content
+	  	</div>
+	  	<span class="badge rounded-pill text-bg-dark">modAt</span>
+	  </li>
+	</ul>
+	
+	<!-- 댓글 페이징 라인
+	 data-page="1" : 첫번째 페이지, visibility : 숨김 속성 -->
+	<div>
+		<div>
+			<button type="button" id="moreBtn" data-page="1"
+			class="btn btn-dark" style="visibility: hidden">MORE+</button>
+		</div>
+	</div>
+	
+	<!-- 모달창 라인 -->
+	<div class="modal" id="myModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+    
+      <div class="modal-header">
+        <h5 class="modal-title">Writer</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      
+      <div class="modal-body">
+       <div class="input-group mb-3">
+	       <input type="text" class="form-control" placeholder="Test Commnet" id="cmtTextMod">
+		   <button type="button" class="btn btn-success" id="cmtModBtn">등록</button>
+      </div>
+     </div>
+     
+     <!-- dismiss : modal 모달 닫기  -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-dark" data-bs-dismiss="modal">닫기</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+let isMod = `<c:out value="${isMod}" />`;
+if(parseInt(isMod)) {
+	alert('수정 완료');
+}
+let bnoVal = `<c:out value="${bvo.bno}" />`;
+console.log(bnoVal);
+</script>
+<script type="text/javascript" src="/resources/js/boardComment.js"></script>
+<script type="text/javascript">
+getCommentList(bnoVal);
+</script>
+<jsp:include page="../common/footer.jsp" />
+</body>
+</html>

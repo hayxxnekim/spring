@@ -1,0 +1,31 @@
+
+10월 20, 2023 20:14:48.625 NEW SESSION
+10월 20, 2023 20:14:48.625 [7756:6856:1020/201448.624:ERROR:interface_endpoint_client.cc(702)] Message 1 rejected by interface blink.mojom.WidgetHost
+
+10월 23, 2023 16:01:19.765 NEW SESSION
+10월 23, 2023 16:01:19.765 [13272:5412:1023/160119.764:ERROR:sharing_service.cc(250)] Device un-registration failed with fatal error
+10월 23, 2023 16:01:20.933 [13272:5412:1023/160120.933:ERROR:device_event_log_impl.cc(225)] [16:01:20.934] Bluetooth: bluetooth_adapter_winrt.cc:1058 Getting Default Adapter failed.
+10월 23, 2023 16:20:10.224 [9708:1296:1023/162010.224:ERROR:interface_endpoint_client.cc(702)] Message 5 rejected by interface blink.mojom.WidgetHost
+10월 23, 2023 16:20:12.224 [9708:1296:1023/162012.224:ERROR:interface_endpoint_client.cc(702)] Message 0 rejected by interface blink.mojom.WidgetHost
+10월 23, 2023 16:20:12.634 [9708:1296:1023/162012.634:ERROR:device_event_log_impl.cc(225)] [16:20:12.634] Bluetooth: bluetooth_adapter_winrt.cc:1058 Getting Default Adapter failed.
+10월 23, 2023 16:25:31.244 [9708:1296:1023/162531.244:ERROR:sharing_service.cc(250)] Device un-registration failed with fatal error
+10월 23, 2023 17:12:10.355 [9708:1296:1023/171210.355:ERROR:interface_endpoint_client.cc(702)] Message 1 rejected by interface blink.mojom.WidgetHost
+
+10월 25, 2023 15:49:30.710 NEW SESSION
+10월 25, 2023 15:49:30.710 INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+10월 25, 2023 15:58:28.663 [11344:12352:1025/155828.663:ERROR:interface_endpoint_client.cc(702)] Message 0 rejected by interface blink.mojom.WidgetHost
+10월 25, 2023 15:58:33.627 [11344:12352:1025/155833.627:ERROR:device_event_log_impl.cc(225)] [15:58:33.626] Bluetooth: bluetooth_adapter_winrt.cc:1058 Getting Default Adapter failed.
+10월 25, 2023 16:04:10.785 [11344:12352:1025/160410.785:ERROR:interface_endpoint_client.cc(702)] Message 1 rejected by interface blink.mojom.WidgetHost
+10월 25, 2023 16:04:10.785 [11344:12352:1025/160410.785:ERROR:interface_endpoint_client.cc(702)] Message 1 rejected by interface blink.mojom.WidgetHost
+10월 25, 2023 16:51:59.786 [11344:12692:1025/165159.786:ERROR:connection_factory_impl.cc(471)] ConnectionHandler failed with net error: -2
+10월 25, 2023 17:32:42.235 [11344:12352:1025/173242.235:ERROR:interface_endpoint_client.cc(702)] Message 1 rejected by interface blink.mojom.WidgetHost
+10월 25, 2023 17:32:42.235 [11344:12352:1025/173242.235:ERROR:interface_endpoint_client.cc(702)] Message 1 rejected by interface blink.mojom.WidgetHost
+10월 25, 2023 17:54:03.97 [11344:12352:1025/175403.097:ERROR:sharing_service.cc(250)] Device un-registration failed with fatal error
+10월 25, 2023 18:19:26.459 [11344:12352:1025/181926.459:ERROR:interface_endpoint_client.cc(702)] Message 1 rejected by interface blink.mojom.WidgetHost
+
+10월 25, 2023 21:13:11.909 NEW SESSION
+10월 25, 2023 21:13:11.909 [8240:8952:1025/211311.908:ERROR:interface_endpoint_client.cc(702)] Message 1 rejected by interface blink.mojom.WidgetHost
+10월 25, 2023 21:21:22.363 [8240:8952:1025/212122.363:ERROR:interface_endpoint_client.cc(702)] Message 1 rejected by interface blink.mojom.WidgetHost
+10월 25, 2023 21:21:22.998 [8240:8952:1025/212122.998:ERROR:device_event_log_impl.cc(225)] [21:21:22.998] Bluetooth: bluetooth_adapter_winrt.cc:1058 Getting Default Adapter failed.
+10월 25, 2023 21:24:32.990 [8240:8952:1025/212432.990:ERROR:sharing_service.cc(250)] Device un-registration failed with fatal error
+10월 25, 2023 21:24:33.718 [8240:8952:1025/212433.718:ERROR:device_event_log_impl.cc(225)] [21:24:33.718] Bluetooth: bluetooth_adapter_winrt.cc:1058 Getting Default Adapter failed.

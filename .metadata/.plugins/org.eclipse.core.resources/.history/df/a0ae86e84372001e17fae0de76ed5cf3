@@ -1,0 +1,7 @@
+console.log("boardRegister.js test");
+
+//트리거 버튼 처리(trigger 클릭 => files 클릭)
+document.getElementById('trigger').addEventListener('click', ()=>{
+    document.getElementById('files').click();
+
+})

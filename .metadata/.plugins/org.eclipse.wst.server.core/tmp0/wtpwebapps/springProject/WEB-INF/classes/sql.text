@@ -1,0 +1,25 @@
+-- 2023-10-18
+DB 생성
+유저 생성 구분
+create user 'username'@'localhost'
+identified by 'password'
+
+create user 'springUser'@'localhost'
+identified by 'mysql'
+
+유저 권한 부여 구문
+grant all privileges on springdb.* to
+'springUser'@'localhost' with grant option; //모든 권한
+flush privileges; //확인
+
+create table board(
+bno bigint not null auto_increment,
+title varchar(200) not null,
+content text not null,
+writer varchar(100) not null,
+reg_at datetime default now(),
+mod_at datetime default now(),
+read_count int default 0,
+cmt_qty int default 0,
+has_file int default 0,
+primary key(bno));

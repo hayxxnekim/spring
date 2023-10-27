@@ -1,0 +1,192 @@
+console.log(bnoVal);
+
+//댓글 등록
+document.getElementById('cmtPostBtn').addEventListener('click', ()=> {
+    const cmtText = document.getElementById('cmtText').value;
+    //span : innerText, input : value
+    const cmtWriter = document.getElementById('cmtWriter').innerText;
+    if(cmtText==null || cmtText=="") {
+        alert('댓글을 작성해 주세요');
+        cmtText.focus();
+        return false;
+    } else {
+        //댓 있 => 객체 생성
+        let cmtData = {
+            bno : bnoVal,
+            writer : cmtWriter,
+            content : cmtText
+        };
+        postCommentToServer(cmtData).then(result => {
+            if(result==1) {
+                alert('댓글 등록 성공');
+                document.getElementById('cmtText').value = '';
+                //댓글 뿌리기
+                getCommentList(bnoVal);
+            }
+        })
+    }
+})
+
+//댓글 데이터 서버 전송
+async function postCommentToServer(cmtData) {
+    try{
+        //요청 경로 설정
+        const url = "/comment/post"
+        //요청 설정 객체
+        const config = {
+            method: "post",
+            headers: {
+                'content-type':'application/json; charset=utf-8'
+            },
+            //요청 본문 json 문자열
+            body: JSON.stringify(cmtData)
+        };
+
+        const resp = await fetch(url, config);
+        const result = await resp.text();
+        return result;
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+//서버에서 댓글 리스트 가져오기
+//페이지 값도 같이 가져오기
+async function spreadCommentListFromServer(bno, page) {
+    try {
+        //method 없으면 기본 get
+        const resp = await fetch('/comment/'+bno+'/'+page);
+        const result = await resp.json();
+        return result;
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+//댓글 보여주기
+//무조건 처음 뿌릴 때는 첫 페이지 값을 뿌려야 함
+//page 1로 지정(처음에는 첫 페이지 값을 뿌림)
+function getCommentList(bno, page=1) {
+    spreadCommentListFromServer(bno, page).then(result => {
+        //ph 객체 pgvo, totalCount, cmtList
+        console.log(result)
+        const ul = document.getElementById('cmtListArea');
+
+        if(result.cmtList.length>0) {
+            //다시 댓글을 뿌릴 때 기존 값 삭제 1page일 경우만
+            //page 변수가 1인 경우, 댓글 목록을 불러올 때 리스트를 리셋
+            //아닌 경우 댓글 누적해서 보여주기
+            if(page==1) {
+                ul.innerText = "";
+             }
+            //ul.innerHTML = "";
+            for(let cvo of result.cmtList) {
+                let li = `<li class="list-group-item" data-cno="${cvo.cno}" data-writer="${cvo.writer}">`;
+                li += `<div class="mb-3"><div class="fw-bold">${cvo.writer}</div>`;
+                li += `<span class="badge rounded-pill text-bg-dark">${cvo.modAt}</span><br class="forS">`;
+                li += `${cvo.content}<button type="button" class="modBtn btn btn-dark" data-bs-toggle="modal" data-bs-target="#myModal">%</button>`;
+                li += `<button type="button" class="delBtn btn btn-dark">X</button>`;
+                li += `</div></li>`;
+                ul.innerHTML += li;
+            }
+
+            //댓글 페이징 코드
+            let moreBtn = document.getElementById('moreBtn');
+            console.log(moreBtn);
+            //db에서 pgvo + list 같이 가져와야 값을 줄 수 있음
+            //다음 페이지가 존재하는 경우
+            if(result.pgvo.pageNo < result.endPage) {
+                //버튼 표시
+                moreBtn.style.visibility = 'visible';
+                moreBtn.dataset.page = page+1;
+            } else {
+                //버튼 숨김
+                moreBtn.style.visibility = 'hidden';
+            }
+        } else {
+            let li = `<li>댓글을 작성해 주세요</li>`;
+            ul.innerHTML = li;
+        }
+    })
+}
+
+//수정, 삭제 , 더보기 버튼 이벤트 등록
+document.addEventListener('click', (e)=> {
+    console.log(e.target);
+    if(e.target.classList.contains('delBtn')) {
+        let li = e.target.closest('li');
+        let cno = li.dataset.cno;
+        //작성자 일치 시 삭제
+        //let cmtWriter = li.dataset.writer;
+
+        removeCommemtToServer(cno).then(result=> {
+            if(result==1) {
+                alert('댓글 삭제 완료');
+            }
+            getCommentList(bnoVal);
+        })
+    } else if(e.target.classList.contains('modBtn')) {
+        let li = e.target.closest('li');
+        //모달창의 input 값 가져오기
+        //nextSibling() : 같은 부모의 다음 형제 객체를 반환
+        let cmtText = li.querySelector('.forS').nextSibling;
+
+        //기존 내용 모달 창에 반영(수정하기 편하게...)
+        document.getElementById('cmtTextMod').value = cmtText.nodeValue;       
+        //cmtModBtn에 data-cno 달기
+        document.getElementById('cmtModBtn').setAttribute('data-cno', li.dataset.cno);
+    } else if(e.target.id=='cmtModBtn') {
+        let cmtDataMod={
+            cno : e.target.dataset.cno,
+            content : document.getElementById('cmtTextMod').value
+        };
+        console.log(cmtDataMod);
+        editCommemtToServer(cmtDataMod).then(result=> {
+            //값이 1이면 true
+            if(parseInt(result)) {
+                //모달창 닫기
+                document.querySelector('.btn-close').click();
+                alert('댓글 수정 완료');
+                getCommentList(bnoVal);
+                // if(result==1) {
+                // }
+            }
+        })
+    } else if(e.target.id=='moreBtn') {
+        getCommentList(bnoVal, parseInt(e.target.dataset.page));
+    }
+})
+
+async function removeCommemtToServer(cno) {
+    try {
+        const url = '/comment/'+cno;
+        const config = {
+            method: 'delete'
+        };
+        const resp = await fetch(url, config);
+        const result = await resp.text();
+        return result;
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+//수정(2023-10-23)
+async function editCommemtToServer(cmdDataMod) {
+    try {
+        const url = '/comment/'+cmdDataMod.cno;
+        const config = {
+            method: 'put',
+            headers: {
+                'content-type':'application/json; charset=utf-8'
+            },
+            //cmdDataMod를 json String으로 변환
+            body: JSON.stringify(cmdDataMod)
+        };
+        const resp = await fetch(url, config);
+        const result = await resp.text();
+        return result;
+    } catch (err) {
+        console.log(err);
+    }
+}

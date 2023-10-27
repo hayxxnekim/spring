@@ -1,0 +1,33 @@
+console.log("boardModify.js");
+
+async function removeFileToServer(uuid) {
+    try {
+        const url = '/board/file/'+uuid;
+        const config={
+            method: 'delete'
+        };
+        const resp = await fetch(url, config);
+        //삭제니까 텍스트로 받기
+        const result = await resp.text();
+        return result;
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+document.addEventListener('click', (e)=> {
+    if(e.target.classList.contains('file-x')) {
+        //클릭한 요소의 uuid 값 가져오기
+        let uuid = e.target.dataset.uuid;
+
+        removeFileToServer(uuid).then(result=> {
+            if(result==1) {
+                alert('파일 삭제');
+                e.target.closest('li').remove();
+                location.reload();
+            } else {
+                alert('파일 삭제 실패');
+            }
+        })
+    }
+})

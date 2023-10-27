@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.myweb.www.repository.BoardDAO">
+<insert id="insert">
+	insert into board(title, writer, content)
+	values(#{title}, #{writer}, #{content})
+</insert>
+<!-- 가장 최근의 bno(=제일 큰 값) -->
+<select id="selectOneBno" resultType="long">
+	select max(bno) from board;
+</select>
+<select id="getList" resultType="com.myweb.www.domain.BoardVO">
+	select * from board 
+	<include refid="search"></include>
+	order by bno desc limit #{pageStart}, #{qty}
+</select>
+<select id="getDetail" resultType="com.myweb.www.domain.BoardVO">
+	select * from board where bno = #{bno}
+</select>
+<update id="update">
+	update board set title = #{title}, content = #{content}, mod_at = now()
+	where bno = #{bno}
+</update>
+<update id="readCount">
+	update board set read_count = read_count + #{cnt} where bno = #{bno}
+</update>
+<delete id="remove">
+	delete from board where bno = #{bno}
+</delete>
+<select id="getTotalCount" resultType="int">
+	select count(bno) from board <include refid="search"></include>
+</select>
+<update id="fcmt">
+	update board b set b.has_file = (select count(f.uuid) from file f where f.bno = b.bno)
+</update>
+<update id="ccmt">
+	update board b set b.cmt_qty = (select count(c.cno) from comment c where c.bno = b.bno)
+</update>
+
+<sql id="search">
+	<!-- 타입이 null이 아닌 경우에만 -->
+	<if test="type!=null">
+		<!-- 앞, 뒤 값 추가 -->
+		<!-- 앞의 OR 지우기 -->
+		<trim prefix="where (" suffix=")" prefixOverrides="OR" >
+			<!-- collection : 돌리고자 하는 배열 값 -->
+			<foreach collection="typeToArray" item="type">
+				<trim prefix="OR">
+					<choose>
+						<when test="type=='t'.toString()">
+							title like concat('%', #{keyword}, '%')
+						</when>
+						<when test="type=='w'.toString()">
+							writer like concat('%', #{keyword}, '%')
+						</when>
+						<when test="type=='c'.toString()">
+							content like concat('%', #{keyword}, '%')
+						</when>
+					</choose>
+				</trim>
+			</foreach>
+		</trim>
+	</if>
+</sql> 
+ 
+</mapper>

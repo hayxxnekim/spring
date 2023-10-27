@@ -1,0 +1,136 @@
+package com.myweb.www.service;
+
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.springframework.stereotype.Service;
+
+import com.myweb.www.domain.BoardDTO;
+import com.myweb.www.domain.BoardVO;
+import com.myweb.www.domain.FileVO;
+import com.myweb.www.domain.PagingVO;
+import com.myweb.www.repository.BoardDAO;
+import com.myweb.www.repository.FileDAO;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Service
+public class BoardServiceImpl implements BoardService {
+	//dao 객체 생성
+	@Inject
+	private BoardDAO bdao;
+	
+	@Inject
+	private FileDAO fdao;
+
+//	@Override
+//	public int register(BoardVO bvo) {
+//		int isOk = bdao.insert(bvo);
+//		return isOk;
+//	}
+
+	@Override
+	public List<BoardVO> getList(PagingVO pagingVO) {
+		return bdao.getList(pagingVO);
+	}
+
+	@Override
+	public BoardDTO getDetail(long bno) {
+		BoardDTO bdto = new BoardDTO();
+		//read_count + 1
+		bdao.readCount(bno, 1);
+		
+		//1
+		BoardVO bvo = bdao.getDetail(bno);
+		bdto.setBvo(bvo);
+		//파일 list 가져온 다음 BoardDTO로 만들어 리턴
+		List<FileVO> list = fdao.getFileList(bno);
+		bdto.setFlist(list);
+		return bdto;
+		
+		//2
+		//파일 list 가져온 다음 BoardDTO로 만들어 리턴
+		//BoardDTO bdto = new BoardDTO(bdao.getDetail(bno), fdao.getFileList(bno));
+		//return bdto;
+	}
+
+	@Override
+	public int modify(BoardVO bvo) {
+		//read_count - 2
+		//수정 페이지의 +1, 수정된 페이지의 +1 빼주기
+		bdao.readCount(bvo.getBno(), -2);
+		return bdao.update(bvo);
+	}
+
+	@Override
+	public int remove(long bno) {
+		return bdao.remove(bno);
+	}
+
+	@Override
+	public int getTotalCount(PagingVO pagingVO) {
+		return bdao.getTotalCount(pagingVO);
+	}
+
+	@Override
+	public int register(BoardDTO bdto) {
+		//bvo, flist 가져와서 각자 db에 저장
+		//기존 메서드 활용
+		int isUp = bdao.insert(bdto.getBvo()); //bno 등록
+		//null 처리
+		if(bdto.getFlist()==null) {
+			isUp *= 1;
+			return isUp;
+		}
+		//bvo insert 후, 파일도 있다면...
+		//게시글이 등록되고, flist가 존재하는 경우
+		if(isUp>0 && bdto.getFlist().size()>0) {
+			//방금 전 등록된 bno 값 가져오기
+			long bno = bdao.selectOneBno(); //가장 마지막에 등록된 bno
+			//모든 파일에 bno set
+			for(FileVO fvo : bdto.getFlist()) {
+				//각 fvo에 bno set
+				fvo.setBno(bno);
+				//isUp : controller로 리턴
+				isUp *= fdao.insertFile(fvo);
+			}
+		}
+		return isUp;
+	}
+
+	@Override
+	public BoardDTO getDetailFile(long bno) {
+		BoardDTO bdto = new BoardDTO();
+		//게시글 정보, 파일 정보 함께
+		bdto.setBvo(bdao.getDetail(bno)); 
+		bdto.setFlist(fdao.getFileList(bno));
+		return bdto;
+	}
+
+	@Override
+	public int removeFile(String uuid) {
+		return fdao.deleteFile(uuid);
+	}
+
+	@Override
+	public int modifyFiles(BoardDTO bdto) {
+		bdao.readCount(bdto.getBvo().getBno(), -2);
+		int isOk = bdao.update(bdto.getBvo()); //기존 bvo 업데이트
+		//파일이 있는지 확인
+		if(bdto.getFlist()==null) {
+			isOk *= 1;
+		} else {
+			if(isOk>0 && bdto.getFlist().size()>0) {
+				int bno = bdto.getBvo().getBno();
+				//모든 fvo에 bno set
+				for(FileVO fvo : bdto.getFlist()) {
+					fvo.setBno(bno);
+					isOk *= fdao.insertFile(fvo);
+				}
+			}
+		}
+		return isOk;
+	}
+}
